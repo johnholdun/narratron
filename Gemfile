@@ -39,7 +39,7 @@ gem 'base58'
 
 gem 'capistrano'
 
-gem 'pg'
+# gem 'pg'
 
 # Use unicorn as the app server
 gem 'unicorn'

@@ -13,9 +13,6 @@
 
 ActiveRecord::Schema.define(version: 20140713024202) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
   create_table "days", force: true do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -23,7 +20,7 @@ ActiveRecord::Schema.define(version: 20140713024202) do
     t.datetime "date"
   end
 
-  add_index "days", ["story_id"], name: "index_days_on_story_id", using: :btree
+  add_index "days", ["story_id"], name: "index_days_on_story_id"
 
   create_table "entries", force: true do |t|
     t.integer  "parent_id"
@@ -35,7 +32,7 @@ ActiveRecord::Schema.define(version: 20140713024202) do
     t.boolean  "ending"
   end
 
-  add_index "entries", ["user_id"], name: "index_entries_on_user_id", using: :btree
+  add_index "entries", ["user_id"], name: "index_entries_on_user_id"
 
   create_table "favorites", force: true do |t|
     t.datetime "created_at"
@@ -44,8 +41,8 @@ ActiveRecord::Schema.define(version: 20140713024202) do
     t.integer  "path_id"
   end
 
-  add_index "favorites", ["path_id"], name: "index_favorites_on_path_id", using: :btree
-  add_index "favorites", ["user_id"], name: "index_favorites_on_user_id", using: :btree
+  add_index "favorites", ["path_id"], name: "index_favorites_on_path_id"
+  add_index "favorites", ["user_id"], name: "index_favorites_on_user_id"
 
   create_table "stories", force: true do |t|
     t.string   "thanks"
@@ -72,6 +69,6 @@ ActiveRecord::Schema.define(version: 20140713024202) do
     t.integer  "path_id"
   end
 
-  add_index "votes", ["path_id"], name: "index_votes_on_path_id", using: :btree
+  add_index "votes", ["path_id"], name: "index_votes_on_path_id"
 
 end
