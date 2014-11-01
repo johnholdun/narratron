@@ -1,8 +1,10 @@
+<% delete_mode ||= false %>
+
 <div class="story-text">
   <% @entries.each do |e| %>
     <span class="entry <%= 'yours' if e.user == current_user %>">
-    <%= e.text %>
-  </span>
+      <%= link_to_if delete_mode, e.text, entry_path(e), method: :delete %>
+    </span>
 <% end %>
 </div>
 
@@ -26,6 +28,28 @@
         This story is still open for contributions. Share this page
         with your friends and they'll have a chance to contribute their
         own sentence!
+      </p>
+    <% end %>
+    <% if @story.can_be_edited?(current_user) %>
+      <p>
+        <% if @story.closed? %>
+          This story has been closed by an admin or the story's creator.
+          <% unless @story.stale_public_story? %>
+            <%= link_to "Click here", story_toggle_status_path(@story), method: :post %> to open it.
+          <% end %>
+        <% else %>
+          As an admin or the creator of this story, you may
+          <%= link_to "close it", story_toggle_status_path(@story), method: :post %>
+          to end contributions.
+        <% end %>
+        <% if delete_mode %>
+          You are currently in DELETE MODE.
+          <%= link_to "Click here", entry_path(@entries.last) %> to exit it.
+        <% else %>
+          You have permission to delete entries from this story if necessary.
+          <%= link_to "Click here", entry_path(@entries.last, params: {delete: true}) %>
+          to switch to DELETE MODE.
+        <% end %>
       </p>
     <% end %>
   <% else %>
@@ -56,7 +80,7 @@
   <% end %>
   <% unless @entries.empty? %>
     Sentences in this story path were contributed by
-    <%= @entries.map { |e| (current_user && e.user == current_user) ? 'you' : e.user.display_name }.to_sentence %>.
+    <%= @entries.map { |e| attribution_text(e) }.to_sentence %>.
   <% end %>
   </p>
 </div>

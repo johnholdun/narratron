@@ -6,11 +6,16 @@
   <%= link_to "Edit Info", edit_user_path(@user) %>
 </p>
 
-<% if @user.entries.present? %>
-  <h3>Contributions</h2>
+<% if @contributions.present? %>
+  <h3>
+    Contributions
+    <span class="contribution-count">
+      <%= @user.entries.size %>
+    </span>
+  </h3>
 
   <div id="contributed-stories">
-    <% @user.entries.each do |e| %>
+    <% @contributions.each do |e| %>
       <blockquote class="user-profile-entry">
         <p><%= e.text %></p>
       </blockquote>
@@ -21,6 +26,8 @@
 
     <% end %>
   </div>
+
+  <%= will_paginate @contributions, page_links: false %>
 <% else %>
   <p>
     <strong>You haven&rsquo;t contributed to any stories yet.</strong>

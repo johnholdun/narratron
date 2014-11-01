@@ -8,7 +8,7 @@
 .guidance {
   color: #999;
   font-size: 13px;
-  margin: 5px auto;
+  margin: 15px auto;
 }
 
 .wat {
@@ -26,6 +26,13 @@
 
 .entry-text {
   @include literary;
+  margin-left: 5px;
+}
+
+.hidden-entry {
+  @include redacted;
+  margin-left: 5px;
+  margin-right: -10px;
 }
 
 .entry-submission {

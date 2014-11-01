@@ -24,16 +24,12 @@ gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0',          group: :doc
 
-# Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-gem 'spring',        group: :development
-
 # Use ActiveModel has_secure_password
 gem 'bcrypt', '~> 3.1.7'
 
 gem 'punkt-segmenter'
 gem 'obfuscate_id', git: 'https://github.com/namick/obfuscate_id.git'
 
-gem 'annotate', ">=2.6.0", group: :development
 
 gem 'base58'
 
@@ -43,12 +39,25 @@ gem 'capistrano'
 
 # Use unicorn as the app server
 gem 'unicorn'
+gem 'rack-handlers'
 
 # Use Capistrano for deployment
-gem 'capistrano-rails', group: :development
 
 #so I can stop typing RAILS_ENV all the time
 gem 'foreman'
+
+#pagination
+gem 'will_paginate', '~> 3.0'
+
+#using a fork of logglier for rails 4.x support
+gem 'logglier', git: 'https://github.com/kapilkale/logglier.git'
+
+group :development do
+  gem 'awesome_print'
+  gem 'capistrano-rails'
+  gem 'annotate', ">=2.6.0"
+  gem 'spring'
+end
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]

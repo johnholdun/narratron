@@ -15,6 +15,8 @@
 class Entry < ActiveRecord::Base
   obfuscate_id
 
+  self.per_page = 5
+
   belongs_to :story
   belongs_to :user
 
@@ -26,6 +28,8 @@ class Entry < ActiveRecord::Base
   validate :user_only_writes_once_per_story
   validate :entry_text_is_only_one_sentence
 
+  attr_accessor :override_sentence_limit
+
   def story
     if parent_type == 'Story'
       parent
@@ -34,6 +38,10 @@ class Entry < ActiveRecord::Base
     else
       nil
     end
+  end
+
+  def first_sentence?
+    parent_type == 'Story'
   end
 
   def descendants
@@ -58,10 +66,12 @@ class Entry < ActiveRecord::Base
   end
 
   def entry_text_is_only_one_sentence
-    tokenizer = Punkt::SentenceTokenizer.new(text)
-    result    = tokenizer.sentences_from_text(text, :output => :sentences_text)
-    if result.reject { |s| s.length <= 1 }.size > 1
-      errors.add(:base, "Entries must be made up of one sentence only")
+    unless override_sentence_limit || text.blank? #the other validation will catch blank text
+      tokenizer = Punkt::SentenceTokenizer.new(text)
+      result    = tokenizer.sentences_from_text(text, :output => :sentences_text)
+      if result.reject { |s| s.length <= 1 }.size > 1
+        errors.add(:base, "Entries must be made up of one sentence only")
+      end
     end
   end
 end

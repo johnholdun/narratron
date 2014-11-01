@@ -12,8 +12,8 @@ class EntriesController < ApplicationController
     @entry.parent = Story.new if @entry.parent.nil?
 
     if @entry.save
-      attempt_wrapping_story(@entry.story)
       attempt_closing_story(@entry.story)
+      attempt_wrapping_story(@entry.story)
       redirect_to entry_path(@entry)
     else
       if @entry.parent.new_record?
@@ -27,59 +27,63 @@ class EntriesController < ApplicationController
 
   def show
     encoded = Base58.encode(params[:id].to_i)
-    redirect_to find_entry_path(@entry, {id: encoded})
+    redirect_to find_entry_path(@entry, {id: encoded, delete: params[:delete]})
   end
 
   def find
+    Rails.logger.info("locating entry #{params[:id]}")
     decoded = Base58.decode(params[:id])
     @entry = Entry.find(decoded)
 
+    @entry.story.close_public_if_ready
+
+    edits_allowed = @entry.story.can_be_edited?(current_user)
+    delete_mode = edits_allowed & !!params[:delete].present?
+
     if @entry.nil?
       raise ActiveRecord::RecordNotFound
-    elsif @entry.story.closed?
+    elsif can_show_story || delete_mode
       leaf = @entry.leaf? ? @entry : @entry.leaves.sample
-      @entries = chronological_path_from_leaf(leaf)
       @story = leaf.story
-      render 'read' and return
-    elsif @entry.story.contributed?(current_user)
-      contribution = @entry.story.contribution_from(current_user)
-      leaf = contribution.leaf? ? contribution : contribution.leaves.sample
-      @entries = chronological_path_from_leaf(leaf)
-      @story = leaf.story
-      render 'read' and return
+      @entries = @story.paths(leaf).first
+      render('read', locals: {delete_mode: delete_mode}) and return
     end
 
-    @entry = @entry.story.leaves.sample
+    @entry = leaf_with_shortest_path(@entry.leaves, @entry.story) unless @entry.leaf?
 
     @new_entry = @entry.entries.build
     @new_entry.ending = true if @entry.story.wrapping?
+    @entries = @entry.story.paths(@entry).first
+    @entries.pop(2) #remove the one we're showing & the one we're writing
 
     render 'contribute'
   end
 
   def destroy
-    @entry = current_user.entries.find(params[:id])
+    @entry = Entry.find(params[:id])
 
-    @entry.destroy
-    flash.notice 'Entry deleted.'
+    user_can_destroy = @entry.story.can_be_edited?(current_user)
+    user_owns_entry = current_user && @entry.user == current_user
 
-    redirect_to story_index
+    if user_can_destroy || user_owns_entry
+      entry_parent = @entry.parent
+      @entry.destroy
+      flash[:message] = 'Entry deleted.'
+    else
+      flash[:error] = 'Unauthorized action!'
+    end
+
+    redirect_to entry_path(entry_parent)
   end
 
   private
 
-  def entry_params
-    params.require(:entry).permit(:text, :parent_type, :parent_id)
+  def can_show_story
+    @entry.story.closed? || (current_user && @entry.story.contributed?(current_user))
   end
 
-  def chronological_path_from_leaf(e)
-    if e.nil?
-      []
-    elsif e.parent_type == 'Story'
-      [e]
-    else
-      chronological_path_from_leaf(e.parent) << e
-    end
+  def entry_params
+    params.require(:entry).permit(:text, :parent_type, :parent_id)
   end
 
   def attempt_closing_story(story)
@@ -88,6 +92,11 @@ class EntriesController < ApplicationController
   end
 
   def attempt_wrapping_story(story)
-    story.update(status: "wrapping") if story.open? && story.created_at < 1.day.ago
+    story.update(status: "wrapping") if story.ready_to_wrap?
+  end
+
+  def leaf_with_shortest_path(leaves, story)
+    leaves.inject({}) { |m,k| m.update(k => story.paths(k).first.size) }
+          .min_by(&:last).first
   end
 end

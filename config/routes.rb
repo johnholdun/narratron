@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   get 'users/new'
 
   get "today" => "days#today", as: "today"
+  get "queue" => "days#queue", as: "queue"
 
   get "log_out" => "sessions#destroy", as: "log_out"
   get "log_in" => "sessions#new", as: "log_in"
@@ -12,11 +13,21 @@ Rails.application.routes.draw do
   get '/e/:id' => 'entries#find', as: 'find_entry'
 
   root to: "home#index"
+  get "archive" => "home#archive", as: "archive"
+  get "about" => "home#about", as: "about"
 
+  resources :days
   resources :users
   resources :sessions
   resources :entries
-  resources :stories
+
+  resources :submissions do
+    post '/assign' => 'submissions#assign', as: 'assign'
+  end
+
+  resources :stories do
+    post '/toggle_status' => 'stories#toggle_status', as: 'toggle_status'
+  end
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

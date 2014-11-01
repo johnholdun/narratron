@@ -6,7 +6,7 @@ body {
 }
 
 a {
-  color: #008;
+  color: #00C;
   text-decoration: none;
 }
 
@@ -39,6 +39,29 @@ a:hover {
   }
 }
 
+.nav {
+  list-style: none;
+  text-align: center;
+  line-height: 40px;
+  margin: 0;
+
+  li {
+    display: inline;
+    list-style: none;
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+.admin-nav {
+  background: #fbffbf;
+  padding-left: 5px;
+}
+
+#banner .nav {
+  float: left;
+}
+
 #tag {
   font-size: 14px;
   line-height: 40px;
@@ -48,7 +71,7 @@ a:hover {
 
 #footer {
   text-align: center;
-  margin: 20px auto 5px;
+  margin: auto 5px;
 }
 
 #user-actions {
@@ -64,6 +87,11 @@ a:hover {
 
 #content {
   margin: 30px auto;
+}
+
+.pagination {
+  text-align: center;
+  margin-top: 50px;
 }
 
 #flash_message {
@@ -117,7 +145,7 @@ hr.faded {
   clear: both; 
   float: none; 
   height: 1px;
-  margin: 30px 0 29px;
+  margin: 5px 0 5px;
   border: none; 
   background: #ddd;
   background-image: -webkit-gradient(

@@ -1,20 +1,55 @@
-<div class="entry-text">
-  <%= @entry.text %>
+<div class="guidance">
+  <% if @entries.empty? %>
+    <% if current_user %>
+      The story begins here:
+    <% else %>
+      What follows is the first sentence in a story.
+      Read it and consider what the next sentence would be,
+      then log in to add it so the game can begin!
+    <% end %>
+  <% else %>
+    <% if current_user %>
+      The story so far:
+    <% else %>
+      The following is a story, but you can't read it
+      until you've contributed to it! Take a look at
+      the last sentence written and log in to add your
+      own&mdash;only then will the full story be revealed...
+    <% end %>
+  <% end %>
+</div>
+
+<div class="current-story">
+  <% @entries.each do |e| %>
+    <span class="hidden-entry">
+      <%= fake_entry_text(e.text.length) %>
+    </span>
+    <%= random_sentence_end_mark %>
+  <% end %>
+
+
+  <span class="entry-text">
+    <%= @entry.text %>
+  </span>
 </div>
 
 <hr class="faded">
 
+
 <% if current_user %>
-    <div class="entry-submission">
-      <%
-        guidance = 'Continue the story with one new sentence.'
-        if @entry.story.wrapping?
-          guidance += 'This is the final sentence in this story path! Try to wrap it up as best you can.'
-        end
-      %>
-      <%= render 'form', guidance: guidance %>
-    </div>
+  <div class="entry-submission">
+    <%
+      guidance = 'Continue the story with one new sentence.'
+      if @entry.story.wrapping?
+        guidance += 'This is the final sentence in this story path! Try to wrap it up as best you can.'
+      end
+    %>
+    <%= render 'form', guidance: guidance %>
+  </div>
 <% else %>
+  <div class="guidance">
+    Ready to write the next sentence?
+  </div>
   <div class="call-to-login">
     <%= link_to "Sign up", sign_up_path %> or
     <%= link_to "log in", log_in_path %> first!

@@ -10,7 +10,7 @@ class ApplicationController < ActionController::Base
   protected
 
   def authorize
-    unless current_user && current_user.is_admin?
+    unless current_user && current_user.admin?
       flash[:error] = "Unauthorized access"
       redirect_back_or_default(root_path)
       false
@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
   end
 
   def allow_story_creation
-    unless story_creator?
+    unless current_user && (current_user.admin? || current_user.story_creator?)
       flash[:error] = "Unauthorized access"
       redirect_back_or_default(root_path)
       false
@@ -39,14 +39,6 @@ class ApplicationController < ActionController::Base
 
   def current_user
     @current_user ||= User.find_by_id(session[:user_id]) if session[:user_id]
-  end
-
-  def admin_access?
-    current_user && current_user.is_admin?
-  end
-
-  def story_creator?
-    admin_access? || (current_user && current_user.story_creator)
   end
 
   def store_return_to
